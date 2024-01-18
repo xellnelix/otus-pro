@@ -24,4 +24,5 @@ pluginManagement {
 }
 include("hw04-generics")
 include("hw06-annotation")
+include("hw08-gc")
 include("hw10-byteCodes")
