@@ -9,45 +9,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.annotation.Log;
 
+@SuppressWarnings("unchecked")
 public class Ioc {
     private static final Logger logger = LoggerFactory.getLogger(Ioc.class);
 
     private Ioc() {}
 
-    public static TestLoggingInterface createTestLogging() {
-        InvocationHandler handler = new DemoInvocationHandler(new TestLogging());
-        return (TestLoggingInterface) Proxy.newProxyInstance(
-                Ioc.class.getClassLoader(), new Class<?>[] {TestLoggingInterface.class}, handler);
+    public static <T> T createTestLogging(T classObj) {
+        Class<?> clazz = classObj.getClass();
+        InvocationHandler handler = new DemoInvocationHandler<>(classObj);
+        return (T) Proxy.newProxyInstance(Ioc.class.getClassLoader(), clazz.getInterfaces(), handler);
     }
 
-    static class DemoInvocationHandler implements InvocationHandler {
-        private final TestLoggingInterface myClass;
+    static class DemoInvocationHandler<T> implements InvocationHandler {
+        private final T classObj;
         private final List<Method> logAnnotationMethods = new ArrayList<>();
 
-        DemoInvocationHandler(TestLoggingInterface myClass) {
-            Method[] declaredMethods = myClass.getClass().getDeclaredMethods();
+        DemoInvocationHandler(T classObj) {
+            Method[] declaredMethods = classObj.getClass().getDeclaredMethods();
             for (Method method : declaredMethods) {
                 if (method.isAnnotationPresent(Log.class)) {
                     logAnnotationMethods.add(method);
                 }
             }
-            this.myClass = myClass;
+            this.classObj = classObj;
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Method targetMethod = myClass.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
+            Method targetMethod = classObj.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
             if (logAnnotationMethods.contains(targetMethod)) {
                 for (Object arg : args) {
                     logger.info("invoking method with args:{}", arg);
                 }
             }
-            return method.invoke(myClass, args);
+            return method.invoke(classObj, args);
         }
 
         @Override
         public String toString() {
-            return "DemoInvocationHandler{" + "myClass=" + myClass + '}';
+            return "DemoInvocationHandler{" + "myClass=" + classObj + '}';
         }
     }
 }
