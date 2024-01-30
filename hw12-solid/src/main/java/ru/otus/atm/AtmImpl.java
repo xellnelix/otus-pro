@@ -9,7 +9,6 @@ public class AtmImpl implements Atm {
 
     public AtmImpl(MoneyBoxStorage storage) {
         this.storage = storage;
-        storage.createStorage();
     }
 
     @Override
@@ -17,46 +16,46 @@ public class AtmImpl implements Atm {
         if (quantity <= 0) {
             throw new IncorrectBanknotesQuantityException("Incorrect banknotes quantity: " + quantity);
         }
-        storage.getStorage().get(denomination).depositBanknotes(quantity);
+        storage.getStorageMoneyBox(denomination).depositBanknotes(quantity);
     }
 
     @Override
-    public void withdrawMoney(int sum) throws WithdrawBanknotesCollectException, IncorrectSumWithdrawException {
-        if (sum <= 0) {
-            throw new IncorrectSumWithdrawException("Incorrect sum input: " + sum);
+    public int withdrawMoney(int sum) throws WithdrawBanknotesCollectException, IncorrectSumWithdrawException {
+        int sumWithdraw = sum;
+        if (sumWithdraw <= 0) {
+            throw new IncorrectSumWithdrawException("Incorrect sum input: " + sumWithdraw);
         }
 
-        MoneyBoxStorage localStorage = new MoneyBoxStorage();
-        localStorage.createStorage();
-        for (Denomination denomination : storage.getStorage().keySet()) {
-            if (storage.getStorage().get(denomination).getQuantity() == 0) {
-                continue;
+        MoneyBoxStorage localStorage = new MoneyBoxStorage(Denomination.values());
+        for (Denomination denomination : Denomination.values()) {
+            if (storage.getStorageMoneyBox(denomination).getQuantity() > 0) {
+                int banknoteCounter = Math.min(
+                        sumWithdraw / denomination.getValue(),
+                        storage.getStorageMoneyBox(denomination).getQuantity());
+                sumWithdraw = sumWithdraw - banknoteCounter * denomination.getValue();
+                localStorage.getStorageMoneyBox(denomination).depositBanknotes(banknoteCounter);
+                storage.getStorageMoneyBox(denomination).withdrawBanknotes(banknoteCounter);
             }
-            int banknoteCounter = Math.min(
-                    sum / denomination.getValue(),
-                    storage.getStorage().get(denomination).getQuantity());
-            sum = sum - banknoteCounter * denomination.getValue();
-            localStorage.getStorage().get(denomination).depositBanknotes(banknoteCounter);
-            storage.getStorage().get(denomination).withdrawBanknotes(banknoteCounter);
         }
 
-        if (sum > 0) {
-            for (Denomination denomination : storage.getStorage().keySet()) {
-                storage.getStorage()
-                        .get(denomination)
+        if (sumWithdraw > 0) {
+            for (Denomination denomination : Denomination.values()) {
+                storage.getStorageMoneyBox(denomination)
                         .depositBanknotes(
-                                localStorage.getStorage().get(denomination).getQuantity());
+                                localStorage.getStorageMoneyBox(denomination).getQuantity());
             }
             throw new WithdrawBanknotesCollectException("Error: Can't withdraw");
         }
+
+        return sum;
     }
 
     @Override
-    public int showBalance() {
+    public int getBalance() {
         int sum = 0;
         for (Denomination denomination : Denomination.values()) {
             sum += denomination.getValue()
-                    * storage.getStorage().get(denomination).getQuantity();
+                    * storage.getStorageMoneyBox(denomination).getQuantity();
         }
         return sum;
     }

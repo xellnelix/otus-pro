@@ -8,13 +8,13 @@ import ru.otus.denomination.Denomination;
 public class MoneyBoxStorage {
     private final Map<Denomination, MoneyBoxImpl> storage = new TreeMap<>(Collections.reverseOrder());
 
-    public void createStorage() {
-        for (Denomination denomination : Denomination.values()) {
+    public MoneyBoxStorage(Denomination[] denominations) {
+        for (Denomination denomination : denominations) {
             storage.put(denomination, new MoneyBoxImpl());
         }
     }
 
-    public Map<Denomination, MoneyBoxImpl> getStorage() {
-        return storage;
+    public MoneyBoxImpl getStorageMoneyBox(Denomination denomination) {
+        return storage.get(denomination);
     }
 }

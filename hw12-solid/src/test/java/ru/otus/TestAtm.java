@@ -14,7 +14,7 @@ class TestAtm {
 
     @BeforeEach
     void createAtm() {
-        atm = new AtmImpl(new MoneyBoxStorage());
+        atm = new AtmImpl(new MoneyBoxStorage(Denomination.values()));
     }
 
     @Test
@@ -26,7 +26,7 @@ class TestAtm {
     void testDepositCorrectValue() throws IncorrectBanknotesQuantityException {
         atm.depositMoney(Denomination.ONE_THOUSAND, 10);
         int expectedBalance = 10000;
-        assertEquals(atm.showBalance(), expectedBalance);
+        assertEquals(atm.getBalance(), expectedBalance);
     }
 
     @Test
@@ -43,7 +43,7 @@ class TestAtm {
         String actualMessage = exception.getMessage();
         int expectedBalance = 30000;
         assertEquals(actualMessage, expectedMessage);
-        assertEquals(atm.showBalance(), expectedBalance);
+        assertEquals(atm.getBalance(), expectedBalance);
     }
 
     @Test
@@ -56,8 +56,9 @@ class TestAtm {
             throws IncorrectBanknotesQuantityException, WithdrawBanknotesCollectException,
                     IncorrectSumWithdrawException {
         atm.depositMoney(Denomination.TWO_THOUSANDS, 10);
-        atm.withdrawMoney(6000);
-        int expectedBalance = 14000;
-        assertEquals(atm.showBalance(), expectedBalance);
+        int withdrawSum = atm.withdrawMoney(6000);
+        int expectedSum = 6000;
+
+        assertEquals(withdrawSum, expectedSum);
     }
 }
