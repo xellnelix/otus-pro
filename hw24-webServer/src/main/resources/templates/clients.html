@@ -1,0 +1,47 @@
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Управление клиентами</title>
+</head>
+<body>
+<div class="top">
+    <br/>
+    <form action="/api/clients" method="post">
+        <label>
+            Имя <br/>
+            <input type="text" name="name">
+        </label>
+        <br/>
+        <label>
+            Адрес <br/>
+            <input type="text" name="address">
+        </label>
+        <br/>
+        <label>
+            Телефон <br/>
+            <input type="text" name="phone">
+        </label>
+        <br/>
+        <br/>
+        <input type="submit" value="Добавить нового клиента">
+    </form>
+</div>
+<br>
+<h4>Список клиентов:</h4>
+<table>
+    <tr>
+        <th><b>#</b></th>
+        <th><b>Имя</b></th>
+        <th><b>Адрес</b></th>
+        <th><b>Номер телефона</b></th>
+    </tr>
+    <#list clientsList as client>
+    <tr>
+        <th><b>${client?counter}</b></th>
+        <th><b>${client.getName()}</b></th>
+        <th><b>${client.getAddress().getStreet()}</b></th>
+        <th><b>${(client.getPhones())[0].getNumber()}</b></th>
+    </tr>
+    </#list>
+</table>
+</body>
+</html>
