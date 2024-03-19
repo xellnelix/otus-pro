@@ -21,16 +21,8 @@ import ru.otus.services.UserAuthService;
 import ru.otus.services.UserAuthServiceImpl;
 
 /*
-    Полезные для демо ссылки
-
     // Стартовая страница
     http://localhost:8080
-
-    // Страница пользователей
-    http://localhost:8080/users
-
-    // REST сервис
-    http://localhost:8080/api/user/3
 */
 public class WebServerWithFilterBasedSecurity {
     private static final int WEB_SERVER_PORT = 8080;
